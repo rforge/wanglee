@@ -1,9 +1,0 @@
-Package: dsample
-Type: Package
-Title: Discretization-based Direct Random Sample Generation
-Version: 0.90
-Date: 2012-07-28
-Author: Liqun Wang and Chel Hee Lee
-Maintainer: Chel Hee Lee <gnustats@gmail.com>
-Description: An efficient discretization-based Monte Carlo algorithm for random sample generation for high dimensional distributions of complex structures. 
-License: GPL-3
