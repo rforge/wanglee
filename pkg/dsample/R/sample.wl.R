@@ -17,5 +17,6 @@ function(X, nc=1e4, n=1e3, wconst=NULL)
 	sind <- unlist( mapply("+", as.list( c(0, cumsum(rev(measure$counts)))[-(nc+1)] ), scnt) )
 	X <- X[order(X[,1], decreasing=TRUE)[sind], -1]
 	row.names(X) <- NULL
+	class(X) <- c("samplefwl", "data.frame")
 	return(X)
 }
