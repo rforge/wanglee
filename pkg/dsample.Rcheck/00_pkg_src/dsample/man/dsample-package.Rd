@@ -12,7 +12,7 @@ The package provides two discretization-based Monte Carlo algorithms, namely the
 \tabular{ll}{
 Package: \tab dsample\cr
 Type: \tab Package\cr
-Version: \tab 0.91\cr
+Version: \tab 0.91.1\cr
 Date: \tab 2013-05-11\cr
 License: \tab GPL-3\cr
 }

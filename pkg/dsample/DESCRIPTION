@@ -1,7 +1,7 @@
 Package: dsample
 Type: Package
 Title: Discretization-based Direct Random Sample Generation
-Version: 0.91
+Version: 0.91.1
 Date: 2013-05-11
 Author: Liqun Wang and Chel Hee Lee
 Maintainer: Chel Hee Lee <gnustats@gmail.com>
