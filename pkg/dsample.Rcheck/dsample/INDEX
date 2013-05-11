@@ -1,0 +1,8 @@
+dsample-package         Discretization-based Direct Random Sample
+                        Generation
+sample.fw               Random Sample Generation Through The Fu-Wang
+                        Algorithm
+sample.wl               Random Samples Generation Through The Wang-Lee
+                        Algorithm
+summary.samplefwl       Generating Basic Summary Statistics of Marginal
+                        Distributions
