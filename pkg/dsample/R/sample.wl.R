@@ -3,6 +3,8 @@ sample.wl <- function(X, nc=1e4, n=1e3, wconst=NULL)
 	if(is.data.frame(X) | is.matrix(X)) X <- as.data.frame(X)
 	else stop("\'X\' must be either a matrix or a data.frame.\n")
 
+	if(nc >= n) stop("\'nc\' must be larger than \'nc\'")
+
 	X <- X[which(X[,1]>0),]
 	measure <- hist(X[,1], breaks=seq(from=min(X[,1]), to=max(X[,1]), length.out=nc+1), plot=FALSE)
 	gpdf <- rev(measure$counts * measure$mids)

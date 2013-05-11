@@ -2,6 +2,8 @@ sample.fw <- function(X, nc=1e4, n=1e3)
 {
 	if(is.data.frame(X) | is.matrix(X)) X <- as.data.frame(X)
 	else stop("\'X\' must be either a matrix or a data.frame.\n")
+
+	if(nc >= n) stop("\'nc\' must be larger than \'nc\'")
 	
 	ndp <- nrow(X)
 	X <- X[order(X[,1], decreasing=TRUE), ]
