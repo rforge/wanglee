@@ -15,6 +15,7 @@ sample.fw <- function(X, nc=1e4, n=1e3)
 	sind <- unlist( mapply("+", as.list( c(0, cumsum(rep(ndp/nc, nc)))[-(nc+1)] ), scnt) )
 	X <- X[sind, c(-1, -length(names(X)))]
 	row.names(X) <- NULL
-	class(X) <- c("samplefwf", "data.frame")
+	
+	class(X) <- c("samplefwl", "data.frame")
 	return(X)
 }

@@ -1,6 +1,8 @@
-output <- function(x)
+summary.samplefwl <- function(x)
+# output <- function(x)
 {
 	if(!is.data.frame(x)) x <- as.data.frame(x)
+
 	line.stars <- paste(rep("*", 50), collapse="")
 	cat(line.stars, "\n")
 	cat("MEANS \n")
