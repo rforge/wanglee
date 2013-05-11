@@ -1,9 +1,5 @@
-sample.fw <-
-function(X, nc=1e4, n=1e3)
+sample.fw <- function(X, nc=1e4, n=1e3)
 {
-	cat("Note: \n")
-	cat("This sampling algorithm may take from a few minutes to a few hours \n")
-
 	if(is.data.frame(X) | is.matrix(X)) X <- as.data.frame(X)
 	else stop("\'X\' must be either a matrix or a data.frame.\n")
 	

@@ -1,5 +1,4 @@
-output <-
-function(x)
+output <- function(x)
 {
 	if(!is.data.frame(x)) x <- as.data.frame(x)
 	line.stars <- paste(rep("*", 50), collapse="")
