@@ -5,13 +5,13 @@
 # Department of Statistics, University of Manitoba in 2009
 #
 
-#' @name dsample
 #' @rdname dsample
 #'
-#' @title Random Samples Generation Through The Wang-Lee Algorithm
+#' @title Random Samples Generation Through The Wang-Lee and Fu-Wang Algorithms
 #' @description \code{sample.wl} generates a sample of specified size \code{n} from the target density funciton (up to a normalizing constant) based on the Wang-Lee algorithm
 #'
-#' @param  X      a \code{data.frame} or a \code{matrix}.  See \sQuote{Details}.
+#' @param  X      must be a \code{data.frame}.  See \sQuote{Details}.
+#' @param method wl (Wang-Lee), fw (Fu-Wang)
 #' @param  nc     a positive integer, the number of contours.  See \sQuote{Details}.
 #' @param  n      a non-negative integer, the desired sample size. 
 #' @param  wconst a real number between 0 and 1.  See \sQuote{Details}.
@@ -34,7 +34,6 @@
 #' @author 
 #' Chel Hee Lee \email{chl948@@mail.usask.ca}, Liqun Wang \email{liqun.wang@@umanitoba.ca}
 #' 
-#' @seealso \code{\link{sample.fw}} for the Fu-Wang algorithm 
 #' @keywords sampling, discretization
 #'
 #' @examples 
@@ -47,81 +46,76 @@
 #' val <- (x1*(1-x2))^5 * (x2*(1-x1))^3 * (1-x1*(1-x2)-x2*(1-x1))^37
 #' support <- as.data.frame(cbind(val, x1, x2))
 #' 
-#' summary(sample.fw(X=support, nc=1e4, n=1e3))
+#' summary(dsample(X=support, method="wl", nc=1e4, n=1e3))
+#'
+#' summary(dsample(X=support, method="fw", nc=1e4, n=1e3))
 #' 
 #' ##
 #' ## More accurate results can be achieved by increasing the number 
 #' ## of dicretization points and the number of contours.  
 #' @export 
 
-sample.wl <-
-function(X, nc=1e4, n=1e3, wconst=NULL)
-{
-	if(is.data.frame(X) | is.matrix(X)) X <- as.data.frame(X)
-	else stop("\'X\' must be either a matrix or a data.frame.\n")
+dsample <- function(X, method=c("wl", "fw"), nc=1e4, n=1e3, wconst=NULL) {
 
-	if(nrow(X) < nc) stop("The number of rows in \'X\' should be larger than \'nc\'")
-
-	X <- X[which(X[,1]>0),]
-	measure <- hist(X[,1], breaks=seq(from=min(X[,1]), to=max(X[,1]), length.out=nc+1), plot=FALSE)
-	gpdf <- rev(measure$counts * measure$mids)
-	if(!is.null(wconst)) gpdf[nc] <- wconst*gpdf[nc]
-	cdf <- c(0, cumsum(gpdf)/sum(gpdf))
-	pps <- hist(runif(n), breaks=cdf, plot=FALSE)$counts
-	scnt <- mapply(sample, MoreArgs=list(replace=TRUE), rev(measure$counts), pps);
-	sind <- unlist( mapply("+", as.list( c(0, cumsum(rev(measure$counts)))[-(nc+1)] ), scnt) )
-	X <- X[order(X[,1], decreasing=TRUE)[sind], -1]
+	stopifnot(is.data.frame(X), !missing(X), nrow(X) > nc)
+	
+	if (method == "wl") {
+		X <- X[which(X[,1]>0),]
+		measure <- graphics::hist(X[,1], breaks=seq(from=min(X[,1]), to=max(X[,1]), length.out=nc+1), plot=FALSE)
+		gpdf <- rev(measure$counts * measure$mids)
+		if(!is.null(wconst)) gpdf[nc] <- wconst*gpdf[nc]
+		cdf <- c(0, cumsum(gpdf)/sum(gpdf))
+		pps <- graphics::hist(stats::runif(n), breaks=cdf, plot=FALSE)$counts
+		scnt <- mapply(sample, MoreArgs=list(replace=TRUE), rev(measure$counts), pps);
+		sind <- unlist( mapply("+", as.list( c(0, cumsum(rev(measure$counts)))[-(nc+1)] ), scnt) )
+		X <- X[order(X[,1], decreasing=TRUE)[sind], -1]
+	}
+	
+	if (method == "fw") {
+		ndp <- nrow(X)
+		X <- X[order(X[,1], decreasing=TRUE), ]
+		X$g <- gl(nc, ndp/nc)	
+		clvls <- tapply(X[,1], X$g, mean)
+		cdf <- c(0, cumsum(clvls)/sum(clvls))
+		pps <- graphics::hist(stats::runif(n), breaks=cdf, plot=FALSE)$counts	
+		scnt <- mapply(sample, MoreArgs=list(replace=TRUE), rep(ndp/nc, nc), pps)
+		sind <- unlist( mapply("+", as.list( c(0, cumsum(rep(ndp/nc, nc)))[-(nc+1)] ), scnt) )
+		X <- X[sind, c(-1, -length(names(X)))]
+	}
+	
+	X <- as.data.frame(X)
 	row.names(X) <- NULL
-
-	class(X) <- c("samplefwl", "data.frame")
-	return(X)
+	
+	class(X) <- c("dsample", "data.frame")
+	invisible(X)
 }
 
 
-#' @rdname dsample
-#' @export 
-sample.fw <-
-function(X, nc=1e4, n=1e3)
-{
-	if(is.data.frame(X) | is.matrix(X)) X <- as.data.frame(X)
-	else stop("\'X\' must be either a matrix or a data.frame.\n")	
-	
-	if(nrow(X) < nc) stop("The number of rows in \'X\' should be larger than \'nc\'")
-
-	ndp <- nrow(X)
-	X <- X[order(X[,1], decreasing=TRUE), ]
-	X$g <- gl(nc, ndp/nc)	
-	clvls <- tapply(X[,1], X$g, mean)
-	cdf <- c(0, cumsum(clvls)/sum(clvls))
-	pps <- hist(runif(n), breaks=cdf, plot=FALSE)$counts	
-	scnt <- mapply(sample, MoreArgs=list(replace=TRUE), rep(ndp/nc, nc), pps)
-	sind <- unlist( mapply("+", as.list( c(0, cumsum(rep(ndp/nc, nc)))[-(nc+1)] ), scnt) )
-	X <- X[sind, c(-1, -length(names(X)))]
-	row.names(X) <- NULL
-	
-	class(X) <- c("samplefwl", "data.frame")
-	return(X)
-}
-
-
-#' @name summary.samplefwl
+#' @rdname summary.dsample
+#' 
 #' @title Generating Basic Summary Statistics of Marginal Distributions
+#'
 #' @description  Producing basic summary statistics (the mean, the standard deviation and the first five modes) from the sample drawn via either the Fu-Wang algorithm or the Wang-Lee algorithm, for all marginal distributions of the target distribution.
+#'
 #' @param object a \code{data.frame}, contains the sample drawn via either the Fu-Wang algorithm or the Wang-Lee algorithm 
-#' @param ... dot-dot-dot arguments
-#' @author
-#' Chel Hee Lee \email{chl948@@mail.usask.ca}, Liqun Wang \email{liqun.wang@@umanitoba.ca}
+#' @param n the first n samples
+#' @param digits a length of valid numbers
+#' @param ... more arguments
+#'
+#' @author Chel Hee Lee \email{chl948@@mail.usask.ca}, Liqun Wang \email{liqun.wang@@umanitoba.ca}
+#'
 #' @export 
-summary.samplefwl <-
-function(object, ...)
-{
+summary.dsample <- function(object, n=5, digits=4, ...) {
+
+	stopifnot(is.data.frame(object))
+	
 	cat("\nMeans: \n")
-	print(round(sapply(object, mean), 4))
+	print(round(sapply(object, mean), digits))
 
 	cat("\nStandard deviations: \n")
-	print(round(sapply(object, mean), 4))
+	print(round(sapply(object, mean), digits))
 
 	cat("\nFirst five modes: \n")
-	print(round(object[1:5, ],4))
+	print(round(object[1:n, ], digits))
 }
 

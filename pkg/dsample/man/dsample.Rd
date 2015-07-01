@@ -2,16 +2,14 @@
 % Please edit documentation in R/dsample.R
 \name{dsample}
 \alias{dsample}
-\alias{sample.fw}
-\alias{sample.wl}
-\title{Random Samples Generation Through The Wang-Lee Algorithm}
+\title{Random Samples Generation Through The Wang-Lee and Fu-Wang Algorithms}
 \usage{
-sample.wl(X, nc = 10000, n = 1000, wconst = NULL)
-
-sample.fw(X, nc = 10000, n = 1000)
+dsample(X, method = c("wl", "fw"), nc = 10000, n = 1000, wconst = NULL)
 }
 \arguments{
-\item{X}{a \code{data.frame} or a \code{matrix}.  See \sQuote{Details}.}
+\item{X}{must be a \code{data.frame}.  See \sQuote{Details}.}
+
+\item{method}{wl (Wang-Lee), fw (Fu-Wang)}
 
 \item{nc}{a positive integer, the number of contours.  See \sQuote{Details}.}
 
@@ -40,7 +38,9 @@ x2 <- runif(1e5)
 val <- (x1*(1-x2))^5 * (x2*(1-x1))^3 * (1-x1*(1-x2)-x2*(1-x1))^37
 support <- as.data.frame(cbind(val, x1, x2))
 
-summary(sample.fw(X=support, nc=1e4, n=1e3))
+summary(dsample(X=support, method="wl", nc=1e4, n=1e3))
+
+summary(dsample(X=support, method="fw", nc=1e4, n=1e3))
 
 ##
 ## More accurate results can be achieved by increasing the number
@@ -57,9 +57,6 @@ Lee, C.H. (2009). Efficient Monte Carlo Random Sample Generation through Discret
 Wang, L. and Fu, J. (2007). A practical sampling approach for a bayesian mixture model with unknown number of components. Statistical Papers, 48(4):631-653.
 
 Fu, J. C. and Wang, L. (2002). A random-discretization based Monte Carlo sampling method and its application. Methodology and Computing in Applied Probability, 4, 5-25.
-}
-\seealso{
-\code{\link{sample.fw}} for the Fu-Wang algorithm
 }
 \keyword{discretization}
 \keyword{sampling,}
